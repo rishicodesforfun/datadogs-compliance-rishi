@@ -39,3 +39,6 @@ service-account.json
 # Datadog / Logs
 # =========================
 *.log
+
+ desktop.ini
+ 
