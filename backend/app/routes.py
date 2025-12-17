@@ -1,22 +1,25 @@
-from fastapi import APIRouter
-from .models import ChatRequest, ChatResponse
-import time
-import random
+from fastapi import APIRouter, HTTPException
+from app.models import ChatRequest, ChatResponse
+from app.gemini import generate_response
 
 router = APIRouter()
 
+@router.get("/health")
+def health():
+    return {"status": "healthy"}
+
 @router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    start = time.time()
+    try:
+        result = generate_response(req.message)
 
-    if random.random() < 0.3:
-        time.sleep(1.5)
+        return ChatResponse(
+            reply=result["text"],
+            latency_ms=result["latency_ms"],
+            prompt_tokens=result["prompt_tokens"],
+            response_tokens=result["response_tokens"],
+            total_tokens=result["total_tokens"],
+        )
 
-    reply = f"Echo: {req.message}"
-
-    latency = (time.time() - start) * 1000
-
-    return ChatResponse(
-        reply=reply,
-        latency_ms=round(latency, 2)
-    )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

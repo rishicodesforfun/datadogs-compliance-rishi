@@ -6,3 +6,6 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     latency_ms: float
+    prompt_tokens: int
+    response_tokens: int
+    total_tokens: int
