@@ -1,30 +1,25 @@
-import os
 import time
-import google.generativeai as genai
-
-print("🔥 Gemini module loaded")
-
-api_key = os.environ.get("GEMINI_API_KEY")
-if not api_key:
-    raise RuntimeError("GEMINI_API_KEY environment variable not set")
-
-genai.configure(api_key=api_key)
-
-model = genai.GenerativeModel("models/gemini-1.0-pro")
-
 
 def generate_response(prompt: str):
+    """
+    Temporary stub while Gemini / Vertex AI billing is pending.
+    This allows observability, tracing, and UI to function.
+    """
+
     start = time.time()
 
-    response = model.generate_content(prompt)
+    # Simulate model latency
+    if "[SLOW]" in prompt:
+        time.sleep(1.5)
+    else:
+        time.sleep(0.2)
 
     latency_ms = (time.time() - start) * 1000
-    usage = response.usage_metadata
 
     return {
-        "text": response.text,
+        "text": f"Echo (stub): {prompt}",
         "latency_ms": round(latency_ms, 2),
-        "prompt_tokens": usage.prompt_token_count,
-        "response_tokens": usage.candidates_token_count,
-        "total_tokens": usage.total_token_count,
+        "prompt_tokens": 0,
+        "response_tokens": 0,
+        "total_tokens": 0,
     }
