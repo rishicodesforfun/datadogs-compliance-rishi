@@ -1,24 +1,35 @@
 from fastapi import APIRouter, HTTPException
-from app.models import ChatRequest, ChatResponse
-from app.gemini import generate_response
+import random
+import time
+
+from .models import ChatRequest, ChatResponse
+from .metrics import record_llm_metrics
 
 router = APIRouter()
 
-@router.get("/health")
-def health():
-    return {"status": "healthy"}
 
 @router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
+    message = req.message
+
     try:
-        result = generate_response(req.message)
+        # Simulate latency
+        if "slow" in message.lower():
+            delay = random.uniform(0.3, 1.2)  # 300–1200ms
+            time.sleep(delay)
+            latency_ms = int(delay * 1000)
+        else:
+            latency_ms = random.randint(50, 150)
+
+        # 🔥 Emit Datadog metrics
+        record_llm_metrics(latency_ms)
 
         return ChatResponse(
-            reply=result["text"],
-            latency_ms=result["latency_ms"],
-            prompt_tokens=result["prompt_tokens"],
-            response_tokens=result["response_tokens"],
-            total_tokens=result["total_tokens"],
+            reply=f"Echo: {message}",
+            latency_ms=latency_ms,
+            prompt_tokens=random.randint(5, 15),
+            response_tokens=random.randint(20, 60),
+            total_tokens=random.randint(25, 80),
         )
 
     except Exception as e:
